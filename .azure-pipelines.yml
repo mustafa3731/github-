@@ -1,0 +1,37 @@
+trigger:
+  branches:
+    include:
+      - feature/login    
+
+pr:
+  branches:
+    include:
+      - feature/login
+
+# Optional: Tag trigger
+resources:
+  pipelines:
+    - pipeline: self
+
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: BuildJob
+    steps:
+    - script: echo "Building code from feature/login branch"
+      displayName: 'Run build step'
+
+- stage: Deploy
+  displayName: 'Deploy Stage'
+  condition: |
+    or(contains(variables['Build.SourceBranch'], 'refs/tags/'), 
+       contains(variables['Build.SourceBranch'], 'feature/login'))
+  jobs:
+  - job: DeployJob
+    steps:
+    - script: echo "Deploying app from tag or login branch"
+      displayName: 'Deploy Step'
